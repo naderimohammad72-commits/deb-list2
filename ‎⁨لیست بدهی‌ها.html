@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>لیست بدهی‌ها</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6f8;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}
+.app{max-width:560px;margin:auto;padding:20px 16px 32px}
+header{background:#fff;border-radius:22px;padding:20px;box-shadow:0 6px 24px #0000000d;margin-bottom:16px}
+h1{margin:0 0 8px;font-size:25px}
+.sub{color:#68727d;font-size:14px}
+.progress{margin-top:16px;background:#edf0f2;height:9px;border-radius:99px;overflow:hidden}
+.bar{height:100%;width:0;background:#24a148;border-radius:99px;transition:.25s}
+.summary{display:flex;justify-content:space-between;margin-top:10px;font-size:13px;color:#59636d}
+section{background:#fff;border-radius:20px;margin:14px 0;overflow:hidden;box-shadow:0 5px 20px #0000000a}
+.section-title{padding:15px 18px;font-size:17px;font-weight:700;background:#fafbfc;border-bottom:1px solid #edf0f2}
+.item{display:flex;align-items:center;gap:13px;padding:16px 18px;border-bottom:1px solid #edf0f2;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.item:last-child{border-bottom:0}
+.item input{position:absolute;opacity:0;pointer-events:none}
+.box{width:27px;height:27px;border:2px solid #aeb7bf;border-radius:8px;display:grid;place-items:center;flex:0 0 27px;transition:.18s}
+.box:after{content:"✓";font-size:19px;color:white;transform:scale(0);transition:.15s}
+.item.done .box{background:#24a148;border-color:#24a148}
+.item.done .box:after{transform:scale(1)}
+.name{font-size:16px;transition:.18s}
+.item.done .name{text-decoration:line-through;color:#89939c}
+.reset{width:100%;border:0;border-radius:15px;padding:14px;background:#fff;color:#c62828;font-size:15px;font-weight:600;box-shadow:0 5px 20px #0000000a}
+.hint{text-align:center;color:#8a949d;font-size:12px;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<h1>💳 لیست بدهی‌ها</h1>
+<div class="sub">برای ثبت پرداخت، روی هر مورد بزن.</div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="summary"><span id="count">۰ از ۹ پرداخت شده</span><span id="percent">۰٪</span></div>
+</header>
+
+<section>
+<div class="section-title">وام‌ها</div>
+<div class="item" data-id="bluebank"><input type="checkbox"><span class="box"></span><span class="name">بلوبانک</span></div>
+<div class="item" data-id="sina"><input type="checkbox"><span class="box"></span><span class="name">بانک سینا</span></div>
+<div class="item" data-id="home-loan"><input type="checkbox"><span class="box"></span><span class="name">وام خانگی</span></div>
+</section>
+
+<section>
+<div class="section-title">قسط‌ها</div>
+<div class="item" data-id="hezarnaghsh"><input type="checkbox"><span class="box"></span><span class="name">هزارنقش</span></div>
+<div class="item" data-id="fridge"><input type="checkbox"><span class="box"></span><span class="name">یخچال</span></div>
+<div class="item" data-id="snapp"><input type="checkbox"><span class="box"></span><span class="name">اسنپ</span></div>
+<div class="item" data-id="digipay"><input type="checkbox"><span class="box"></span><span class="name">دیجی‌پی</span></div>
+<div class="item" data-id="torob"><input type="checkbox"><span class="box"></span><span class="name">ترب</span></div>
+<div class="item" data-id="building"><input type="checkbox"><span class="box"></span><span class="name">شارژ ساختمان</span></div>
+</section>
+
+<button class="reset" id="reset" type="button">بازنشانی همه تیک‌ها</button>
+<div class="hint">وضعیت پرداخت‌ها روی همین دستگاه ذخیره می‌شود.</div>
+</div>
+<script>
+const key="debt-checklist-v1";
+const items=[...document.querySelectorAll(".item")];
+let state=JSON.parse(localStorage.getItem(key)||"{}");
+
+function render(){
+  let done=0;
+  items.forEach(el=>{
+    const checked=!!state[el.dataset.id];
+    el.classList.toggle("done",checked);
+    el.querySelector("input").checked=checked;
+    if(checked) done++;
+  });
+  const pct=Math.round(done/items.length*100);
+  document.getElementById("count").textContent=`${done.toLocaleString("fa-IR")} از ${items.length.toLocaleString("fa-IR")} پرداخت شده`;
+  document.getElementById("percent").textContent=`${pct.toLocaleString("fa-IR")}٪`;
+  document.getElementById("bar").style.width=pct+"%";
+}
+items.forEach(el=>el.addEventListener("click",()=>{
+  state[el.dataset.id]=!state[el.dataset.id];
+  localStorage.setItem(key,JSON.stringify(state));
+  render();
+}));
+document.getElementById("reset").addEventListener("click",(e)=>{
+  e.preventDefault();
+  state={};
+  localStorage.removeItem(key);
+  render();
+});
+render();
+</script>
+</body>
+</html>
